@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String     @id @default(uuid())
+  email      String     @unique
+  password   String
+  firstName  String
+  lastName   String
+  role       Role       @default(TENANT)
+  properties Property[] @relation("LandlordProperties")
+  bookings   Booking[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  RefreshToken RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.VarChar(512)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Property {
+  id           String         @id @default(uuid())
+  title        String
+  description  String
+  address      String
+  price        Float
+  status       PropertyStatus @default(AVAILABLE)
+  landlordId   String
+  propertyType PropertyType
+
+  numberOfBeds  Float?
+  numberOfBaths Float?
+  landSize      Float?
+  landSizeUnit  String?
+  houseSize     Float?
+
+  isFurnished      Boolean?
+  apartmentComplex String?
+
+  landlord  User            @relation("LandlordProperties", fields: [landlordId], references: [id], onDelete: Cascade)
+  images    PropertyImage[]
+  bookings  Booking[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  Issue Issue[]
+}
+
+model PropertyImage {
+  id         String   @id @default(uuid())
+  url        String
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id         String        @id @default(uuid())
+  userId     String
+  propertyId String
+  startDate  DateTime
+  endDate    DateTime
+  status     BookingStatus @default(PENDING)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  payments   Payment[]
+  createdAt  DateTime      @default(now())
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  bookingId String
+  amount    Float
+  proofUrl  String?
+  paidAt    DateTime @default(now())
+  status    PaymentStatus @default(PENDING)
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Issue {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  status      IssueStatus  @default(OPEN)
+  propertyId  String
+  priority    IssuePriority @default(MEDIUM)
+  property    Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  images      IssueImage[] 
+  reportedAt  DateTime     @default(now())
+  resolvedAt  DateTime?
+}
+enum Role {
+  ADMIN
+  LANDLORD
+  TENANT
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  RENTED
+  PENDING
+  DELETED
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  LAND
+  COMMERCIAL
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model IssueImage {
+  id       String @id @default(uuid())
+  url      String
+  issueId  String
+  issue    Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+}
