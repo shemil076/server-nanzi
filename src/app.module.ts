@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { PropertyModule } from './property/property.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PropertyModule } from './property/property.module';
     PrismaModule,
     UserModule,
     PropertyModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

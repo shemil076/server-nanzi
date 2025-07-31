@@ -31,7 +31,6 @@ export class JwtAuthGuard implements CanActivate {
     try {
       decoded = this.jwtUtils.verifyAccessToken(token);
     } catch (err) {
-      console.log('Error occurred=>>>', err);
       throw new UnauthorizedException('Invalid or expired token' + err);
     }
 
