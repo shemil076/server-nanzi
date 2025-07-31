@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { PropertyModule } from './property/property.module';
 import { PaymentModule } from './payment/payment.module';
+import { IssueModule } from './issue/issue.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PaymentModule } from './payment/payment.module';
     UserModule,
     PropertyModule,
     PaymentModule,
+    IssueModule,
   ],
   controllers: [AppController],
   providers: [AppService],
