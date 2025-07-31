@@ -20,7 +20,6 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterUserDto, @Res() res: Response) {
     try {
-        console.log("Register is running");
       const { accessToken, refreshToken, user } =
         await this.authService.registerUser(registerDto);
 
