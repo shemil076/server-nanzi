@@ -266,7 +266,16 @@ export class PropertyService {
       return deletedProperty;
     } catch (err) {
       throw new InternalServerErrorException(
-        'Failed to to delete the property ' + err,
+        'Failed to delete the property ' + err,
+      );
+    }
+  }
+
+  async getPropertyByTenant(tenantId: string) {
+    try {
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch the property by tenant' + error,
       );
     }
   }
