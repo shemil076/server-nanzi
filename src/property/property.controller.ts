@@ -24,6 +24,7 @@ export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
   @Post('create')
+  @Roles(Role.LANDLORD)
   async create(@Body() dto: CreatePropertyDto) {
     return this.propertyService.createProperty(dto);
   }
@@ -32,6 +33,12 @@ export class PropertyController {
   @Roles(Role.LANDLORD)
   async getAllProperties(@User() user: UserPayload) {
     return this.propertyService.getPropertyByLandlord(user.id);
+  }
+
+  @Get('tenants-residence')
+  @Roles(Role.TENANT)
+  async getTenantsResidence(@User() user: UserPayload) {
+    return this.propertyService.getPropertyByTenant(user.id);
   }
 
   @Get('propertyOverview')
@@ -47,11 +54,13 @@ export class PropertyController {
   }
 
   @Put('update/:id')
+  @Roles(Role.LANDLORD)
   async update(@Param('id') id: string, @Body() dto: UpdatePropertyDto) {
     return this.propertyService.update(id, dto);
   }
 
   @Patch('delete/:id')
+  @Roles(Role.LANDLORD)
   async deactivate(@Param('id') id: string) {
     return this.propertyService.delete(id);
   }

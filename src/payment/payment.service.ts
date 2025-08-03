@@ -9,10 +9,10 @@ export class PaymentService {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
-          status: 'APPROVED',
           booking: {
             propertyId: propertyId,
           },
+          OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],
         },
         orderBy: {
           paidAt: 'desc',
@@ -23,6 +23,28 @@ export class PaymentService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to fetch paid payments' + error,
+      );
+    }
+  }
+
+  async getCurrentTenantsPayments(tenantId: string, propertyId: string) {
+    try {
+      const payments = await this.prisma.payment.findMany({
+        where: {
+          booking: {
+            userId: tenantId,
+            propertyId: propertyId,
+          },
+          OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],
+        },
+        orderBy: {
+          paidAt: 'desc',
+        },
+      });
+      return payments;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch the current tenants paid payments' + error,
       );
     }
   }

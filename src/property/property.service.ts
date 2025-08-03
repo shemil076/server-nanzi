@@ -142,6 +142,7 @@ export class PropertyService {
       );
       const payments = await this.prisma.payment.findMany({
         where: {
+          status: 'APPROVED',
           paidAt: {
             gte: startOfMonth,
             lte: endOfMonth,
@@ -273,6 +274,19 @@ export class PropertyService {
 
   async getPropertyByTenant(tenantId: string) {
     try {
+      const property = await this.prisma.booking.findMany({
+        where: {
+          status: 'APPROVED',
+          user: {
+            id: tenantId,
+          },
+        },
+        select: {
+          property: true,
+        },
+      });
+
+      return property[0];
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to fetch the property by tenant' + error,
