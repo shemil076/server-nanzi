@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser'; 
+import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
@@ -14,7 +14,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  await app.listen(5001);
+  await app.listen(process.env.PORT ?? 5001);
 }
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();
-
