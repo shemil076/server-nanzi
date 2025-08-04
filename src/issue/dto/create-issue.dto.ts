@@ -1,4 +1,4 @@
-import { IssuePriority, IssueStatus } from '@prisma/client';
+import { IssuePriority } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class createIssueDto {
@@ -9,9 +9,6 @@ export class createIssueDto {
   @IsString()
   @IsNotEmpty()
   description: string;
-
-  @IsEnum(IssueStatus)
-  status: IssueStatus;
 
   @IsUUID()
   propertyId: string;
