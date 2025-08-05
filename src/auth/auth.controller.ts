@@ -66,7 +66,7 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Req() req: Request, @Res() res: Response) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const refreshToken = req.cookies?.refreshToken;
       if (!refreshToken) {
         return res
@@ -100,7 +100,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   async logout(@Req() req: Request, @Res() res: Response) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const refreshToken = req.cookies?.refreshToken;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       await this.authService.logout(refreshToken);
