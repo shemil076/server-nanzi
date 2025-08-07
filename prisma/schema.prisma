@@ -77,7 +77,7 @@ model Booking {
   userId     String
   propertyId String
   startDate  DateTime
-  endDate    DateTime
+  endDate    DateTime?
   status     BookingStatus @default(PENDING)
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)

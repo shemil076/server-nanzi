@@ -8,6 +8,7 @@ import { PropertyModule } from './property/property.module';
 import { PaymentModule } from './payment/payment.module';
 import { IssueModule } from './issue/issue.module';
 import { TenantModule } from './tenant/tenant.module';
+import { BookingModule } from './booking/booking.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TenantModule } from './tenant/tenant.module';
     PaymentModule,
     IssueModule,
     TenantModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
