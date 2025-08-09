@@ -293,4 +293,26 @@ export class PropertyService {
       );
     }
   }
+
+  async getPropertyToOccupyByTenant(tenantId: string) {
+    try {
+      const property = await this.prisma.booking.findMany({
+        where: {
+          status: 'PENDING',
+          user: {
+            id: tenantId,
+          },
+        },
+        select: {
+          property: true,
+        },
+      });
+
+      return property[0];
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch the property by tenant' + error,
+      );
+    }
+  }
 }

@@ -41,6 +41,12 @@ export class PropertyController {
     return this.propertyService.getPropertyByTenant(user.id);
   }
 
+  @Get('tenant-to-occupy')
+  @Roles(Role.TENANT)
+  async getPropertyToOccupy(@User() user: UserPayload) {
+    return this.propertyService.getPropertyToOccupyByTenant(user.id);
+  }
+
   @Get('propertyOverview')
   @Roles(Role.LANDLORD)
   async getPropertiesSummary(@User() user: UserPayload) {

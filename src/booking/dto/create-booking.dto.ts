@@ -1,4 +1,5 @@
-import { IsDate, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateBookingDto {
   @IsUUID()
@@ -8,8 +9,11 @@ export class CreateBookingDto {
   userId: string;
 
   @IsDate()
+  @Type(() => Date)
   startDate: Date;
 
+  @IsOptional()
   @IsDate()
+  @Type(() => Date)
   endDate: Date;
 }
