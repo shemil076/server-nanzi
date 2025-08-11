@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Get, Patch, Param } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
 import { BookingService } from './booking.service';
@@ -23,5 +23,11 @@ export class BookingController {
   @Roles(Role.TENANT)
   async getPendingBooking(@User() user: UserPayload) {
     return this.bookingService.getPendingBookingByTenant(user.id);
+  }
+
+  @Patch('approve-booking/:id')
+  @Roles(Role.TENANT)
+  async approveBooking(@Param('id') id: string) {
+    return this.bookingService.approveBooking(id);
   }
 }
