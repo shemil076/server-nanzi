@@ -26,6 +26,8 @@ model User {
   updatedAt  DateTime   @updatedAt
 
   RefreshToken RefreshToken[]
+
+  TenantInvitation TenantInvitation[]
 }
 
 model RefreshToken {
@@ -63,6 +65,8 @@ model Property {
   updatedAt DateTime        @updatedAt
 
   Issue Issue[]
+
+  TenantInvitation TenantInvitation[]
 }
 
 model PropertyImage {
@@ -73,40 +77,60 @@ model PropertyImage {
 }
 
 model Booking {
-  id         String        @id @default(uuid())
-  userId     String
-  propertyId String
-  startDate  DateTime
-  endDate    DateTime?
-  status     BookingStatus @default(PENDING)
-  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  payments   Payment[]
-  createdAt  DateTime      @default(now())
+  id           String            @id @default(uuid())
+  userId       String?
+  propertyId   String
+  startDate    DateTime
+  endDate      DateTime?
+  status       BookingStatus     @default(PENDING)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime?         @updatedAt     // TODO: Need to remove the optional '?' symbol and make this field required
+  user         User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  invitation   TenantInvitation? @relation(fields: [invitationId], references: [id])
+  invitationId String?           @unique
+  Payment      Payment[]
+}
+
+model TenantInvitation {
+  id           String           @id @default(uuid())
+  email        String
+  name         String?
+  token        String           @unique
+  status       InvitationStatus @default(PENDING)
+  expiresAt    DateTime
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  acceptedById String?
+  acceptedBy   User?            @relation(fields: [acceptedById], references: [id])
+  propertyId   String?
+  property     Property?        @relation(fields: [propertyId], references: [id])
+  booking      Booking?         @relation()
 }
 
 model Payment {
-  id        String   @id @default(uuid())
+  id        String        @id @default(uuid())
   bookingId String
   amount    Float
   proofUrl  String?
-  paidAt    DateTime @default(now())
+  paidAt    DateTime      @default(now())
   status    PaymentStatus @default(PENDING)
-  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }
 
 model Issue {
-  id          String       @id @default(uuid())
+  id          String        @id @default(uuid())
   title       String
   description String
-  status      IssueStatus  @default(OPEN)
+  status      IssueStatus   @default(OPEN)
   propertyId  String
   priority    IssuePriority @default(MEDIUM)
-  property    Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  images      IssueImage[] 
-  reportedAt  DateTime     @default(now())
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  images      IssueImage[]
+  reportedAt  DateTime      @default(now())
   resolvedAt  DateTime?
 }
+
 enum Role {
   ADMIN
   LANDLORD
@@ -141,10 +165,10 @@ enum PaymentStatus {
 }
 
 model IssueImage {
-  id       String @id @default(uuid())
-  url      String
-  issueId  String
-  issue    Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  id      String @id @default(uuid())
+  url     String
+  issueId String
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
 }
 
 enum IssueStatus {
@@ -158,4 +182,11 @@ enum IssuePriority {
   LOW
   MEDIUM
   HIGH
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELED
 }
