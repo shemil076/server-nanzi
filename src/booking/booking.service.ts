@@ -14,10 +14,77 @@ export class BookingService {
         },
       });
 
+      if (newBooking) {
+        await this.prisma.property.update({
+          where: {
+            id: newBooking.propertyId,
+          },
+          data: {
+            status: 'PENDING',
+          },
+        });
+      }
+
       return newBooking;
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to create a booking ' + error,
+      );
+    }
+  }
+
+  async getPendingBookingByTenant(tenantId: string) {
+    try {
+      const pendingBookingWithProperty = await this.prisma.booking.findFirst({
+        where: {
+          userId: tenantId,
+          status: 'PENDING',
+          property: {
+            status: 'PENDING',
+          },
+        },
+        include: {
+          property: {
+            select: {
+              title: true,
+              address: true,
+            },
+          },
+        },
+      });
+
+      return pendingBookingWithProperty;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch the booking by tenant' + error,
+      );
+    }
+  }
+
+  async approveBooking(bookingId: string) {
+    try {
+      const booking = await this.prisma.booking.update({
+        where: {
+          id: bookingId,
+        },
+        data: {
+          status: 'APPROVED',
+        },
+      });
+      if (booking) {
+        await this.prisma.property.update({
+          where: {
+            id: booking.propertyId,
+          },
+          data: {
+            status: 'RENTED',
+          },
+        });
+      }
+      return booking;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to approve the booking ' + error,
       );
     }
   }
