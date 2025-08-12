@@ -5,8 +5,13 @@ export class CreateBookingDto {
   @IsUUID()
   propertyId: string;
 
+  @IsOptional()
   @IsUUID()
   userId: string;
+
+  @IsOptional()
+  @IsUUID()
+  invitationId: string;
 
   @IsDate()
   @Type(() => Date)

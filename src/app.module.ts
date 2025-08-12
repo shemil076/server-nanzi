@@ -9,6 +9,8 @@ import { PaymentModule } from './payment/payment.module';
 import { IssueModule } from './issue/issue.module';
 import { TenantModule } from './tenant/tenant.module';
 import { BookingModule } from './booking/booking.module';
+import { TenantInvitationModule } from './tenant-invitation/tenant-invitation.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { BookingModule } from './booking/booking.module';
     IssueModule,
     TenantModule,
     BookingModule,
+    TenantInvitationModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

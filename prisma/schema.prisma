@@ -95,7 +95,6 @@ model Booking {
 model TenantInvitation {
   id           String           @id @default(uuid())
   email        String
-  name         String?
   token        String           @unique
   status       InvitationStatus @default(PENDING)
   expiresAt    DateTime
