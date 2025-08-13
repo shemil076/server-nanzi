@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtUtils } from '../utils/auth.utils';
 import { Request } from 'express';
-import { RequestWithUser } from 'src/types/express';
+import { RequestWithUser } from '../types/express';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {

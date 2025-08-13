@@ -5,9 +5,11 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { JwtUtils } from '../utils/auth.utils';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
+    MailModule,
     PrismaModule,
     ConfigModule,
     JwtModule.registerAsync({

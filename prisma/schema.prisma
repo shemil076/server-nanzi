@@ -95,7 +95,7 @@ model Booking {
 model TenantInvitation {
   id           String           @id @default(uuid())
   email        String
-  token        String           @unique
+  token        String          @unique @db.VarChar(512)
   status       InvitationStatus @default(PENDING)
   expiresAt    DateTime
   createdAt    DateTime         @default(now())

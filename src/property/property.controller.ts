@@ -12,7 +12,7 @@ import { CreatePropertyDto } from './dto/create-property.dto';
 import { PropertyService } from './property.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../auth/user.decorator';
-import { UserPayload } from 'src/types/auth';
+import { UserPayload } from '../types/auth';
 import { UpdatePropertyDto } from './dto/update-property.dt0';
 import { RoleGuard } from '../auth/role.guard';
 import { Roles } from '../auth/role.decorator';

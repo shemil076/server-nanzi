@@ -1,0 +1,66 @@
+doctype html
+html
+  head
+    title Invitation to #{eventName}
+    style.
+      body {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      .header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 15px;
+        text-align: center;
+        border-radius: 5px 5px 0 0;
+      }
+      .content {
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 0 0 5px 5px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .footer {
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+        margin-top: 20px;
+      }
+  body
+    .container
+      .header
+        h1 You're Invited to #{eventName}!
+      .content
+        p Dear #{recipientName},
+        p You are cordially invited to join us for #{eventName}!
+        p Event Details:
+        ul
+          li
+            strong Date:
+            |  #{eventDate}
+          li
+            strong Time:
+            |  #{eventTime}
+          li
+            strong Location:
+            |  #{eventLocation}
+        p We would be delighted to have you with us. Please let us know if you can attend by clicking the button below:
+        p
+          a.button(href=rsvpLink) RSVP Now
+        p If you have any questions, feel free to contact us at #{supportEmail}.
+      .footer
+        p Sent by #{appName}. All rights reserved.

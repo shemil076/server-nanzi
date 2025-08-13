@@ -3,8 +3,8 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserPayload } from 'src/types/auth';
-import { RequestWithUser } from 'src/types/express';
+import { UserPayload } from '../types/auth';
+import { RequestWithUser } from '../types/express';
 
 export const User = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): UserPayload => {
