@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { TenantInvitationService } from './tenant-invitation.service';
 import { Role } from '@prisma/client';
 import { Roles } from '../auth/role.decorator';
@@ -23,5 +23,10 @@ export class TenantInvitationController {
   ) {
     console.log('running this =>');
     return this.tenantInvitationService.createTenantInvitation(dto, user.id);
+  }
+
+  @Get('verify')
+  async verifyToken(@Query('token') token: string) {
+    return this.tenantInvitationService.verifyInvitationToken(token);
   }
 }

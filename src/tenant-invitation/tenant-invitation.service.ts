@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTenantInvitationDto } from './dto/create-invitation.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -6,6 +11,7 @@ import { MailService } from '../mail/mail.service';
 import { UserService } from '../user/user.service';
 import { formatToShortDate } from '../utils/helper-functions';
 import { PropertyService } from '../property/property.service';
+import { verify } from 'crypto';
 
 @Injectable()
 export class TenantInvitationService {
@@ -95,6 +101,34 @@ export class TenantInvitationService {
       console.log('Error =>>', error);
       throw new InternalServerErrorException(
         "Failed to create the tenant's invitation" + error,
+      );
+    }
+  }
+
+  async verifyInvitationToken(token: string) {
+    try {
+      this.jwtService.verify(token) as unknown as string;
+
+      const invitation = await this.prisma.tenantInvitation.findUnique({
+        where: { token },
+        include: {
+          property: true,
+          booking: true,
+        },
+      });
+
+      if (!invitation) throw new NotFoundException('Invitation not found');
+      if (invitation.status === 'ACCEPTED')
+        throw new BadRequestException('Already accepted');
+      if (invitation.expiresAt < new Date())
+        throw new BadRequestException('Invitation expired');
+
+      console.log('invitation => -> >', invitation);
+      return invitation;
+    } catch (error) {
+      console.log('Error =>>', error);
+      throw new InternalServerErrorException(
+        'Failed to verify invitation token' + error,
       );
     }
   }
