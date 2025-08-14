@@ -88,4 +88,23 @@ export class BookingService {
       );
     }
   }
+
+  private async linkBookingToTenant(bookingId: string, tenantId: string) {
+    try {
+      const updatedBooking = await this.prisma.booking.update({
+        where: {
+          id: bookingId,
+        },
+        data: {
+          userId: tenantId,
+        },
+      });
+
+      return updatedBooking;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to link booking and tenant' + error,
+      );
+    }
+  }
 }

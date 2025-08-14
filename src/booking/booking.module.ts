@@ -7,6 +7,7 @@ import { JwtUtils } from '../utils/auth.utils';
 @Module({
   imports: [PrismaModule],
   providers: [BookingService, JwtUtils],
+  exports: [BookingService],
   controllers: [BookingController],
 })
 export class BookingModule {}
