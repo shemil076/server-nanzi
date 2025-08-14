@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
-import { IssuePriority } from '@prisma/client';
+import { IssuePriority, PropertyStatus } from '@prisma/client';
 import { UpdatePropertyDto } from './dto/update-property.dt0';
 
 @Injectable()
@@ -309,6 +309,23 @@ export class PropertyService {
       });
 
       return property[0];
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch the property by tenant' + error,
+      );
+    }
+  }
+
+  async updatePropertyStatus(propertyId: string, status: PropertyStatus) {
+    try {
+      await this.prisma.property.update({
+        where: {
+          id: propertyId,
+        },
+        data: {
+          status,
+        },
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to fetch the property by tenant' + error,

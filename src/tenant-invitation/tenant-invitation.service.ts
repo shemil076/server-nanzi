@@ -174,9 +174,16 @@ export class TenantInvitationService {
       await this.updateInvitationsStatus(invitation.id, 'ACCEPTED');
 
       if (invitation.booking) {
-        const updatedBooking = await this.bookingService.linkBookingToTenant(
+        await this.bookingService.linkBookingToTenant(
           invitation.booking?.id,
           createdUser.id,
+        );
+      }
+
+      if (invitation.propertyId) {
+        await this.propertyService.updatePropertyStatus(
+          invitation.propertyId,
+          'PENDING',
         );
       }
       return { accepted: true };
