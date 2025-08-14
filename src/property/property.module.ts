@@ -7,6 +7,7 @@ import { JwtUtils } from '../utils/auth.utils';
 @Module({
   imports: [PrismaModule],
   providers: [PropertyService, JwtUtils],
+  exports: [PropertyService],
   controllers: [PropertyController],
 })
 export class PropertyModule {}

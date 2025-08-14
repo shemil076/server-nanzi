@@ -25,6 +25,7 @@ export class MailService {
     subject: string,
     template: string,
     context: Record<string, any>,
+    isTenant: boolean,
     text?: string,
   ) {
     try {
@@ -51,7 +52,7 @@ export class MailService {
       const mailOptions = {
         from: this.configService.get<string>(
           'EMAIL_FROM',
-          '"Your App" <no-reply@example.com>',
+          `${isTenant ? 'nanzi #tenant' : 'nanzi #landlord'} <no-reply@example.com>`,
         ),
         to,
         subject,

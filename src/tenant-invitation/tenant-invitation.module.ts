@@ -6,12 +6,16 @@ import { JwtUtils } from '../utils/auth.utils';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { MailModule } from '../mail/mail.module';
+import { UserModule } from '../user/user.module';
+import { PropertyModule } from '../property/property.module';
 
 @Module({
   imports: [
     MailModule,
     PrismaModule,
     ConfigModule,
+    UserModule,
+    PropertyModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

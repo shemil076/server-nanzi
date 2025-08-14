@@ -11,6 +11,7 @@ import { TenantModule } from './tenant/tenant.module';
 import { BookingModule } from './booking/booking.module';
 import { TenantInvitationModule } from './tenant-invitation/tenant-invitation.module';
 import { MailModule } from './mail/mail.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MailModule } from './mail/mail.module';
     BookingModule,
     TenantInvitationModule,
     MailModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

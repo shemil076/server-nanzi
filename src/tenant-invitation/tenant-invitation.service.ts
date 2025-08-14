@@ -3,6 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateTenantInvitationDto } from './dto/create-invitation.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
+import { UserService } from '../user/user.service';
+import { formatToShortDate } from '../utils/helper-functions';
+import { PropertyService } from '../property/property.service';
 
 @Injectable()
 export class TenantInvitationService {
@@ -10,9 +13,14 @@ export class TenantInvitationService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly userService: UserService,
+    private readonly propertyService: PropertyService,
   ) {}
 
-  async createTenantInvitation(dto: CreateTenantInvitationDto) {
+  async createTenantInvitation(
+    dto: CreateTenantInvitationDto,
+    landLordId: string,
+  ) {
     try {
       console.log('start running');
       const pendingBooking = await this.prisma.booking.create({
@@ -22,15 +30,8 @@ export class TenantInvitationService {
         },
       });
 
-      console.log('pendingBooking =>', pendingBooking);
       const expirationTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
 
-      // const payLoad = {
-      //   email: dto.email,
-      //   bookingId: pendingBooking.id,
-      //   exp: '7d',
-      // };
-      // console.log('payLoad =>', payLoad);
       const invitationToken = this.jwtService.sign(
         {
           email: dto.email,
@@ -38,8 +39,6 @@ export class TenantInvitationService {
         },
         { expiresIn: '7d' }, // Let JwtService calculate exp
       );
-
-      console.log('invitationToken =>', invitationToken);
 
       const invitation = await this.prisma.tenantInvitation.create({
         data: {
@@ -50,7 +49,6 @@ export class TenantInvitationService {
         },
       });
 
-      console.log('invitation =>', invitation);
       await this.prisma.booking.update({
         where: {
           id: pendingBooking.id,
@@ -60,18 +58,37 @@ export class TenantInvitationService {
         },
       });
 
+      const user = await this.userService.getUserDetails(landLordId);
+      const property = await this.propertyService.getPropertyById(
+        dto.propertyId,
+      );
+
       await this.mailService.sendTenantInvitation(
         dto.email,
         'Tenant invitation',
         'invitation',
         {
           propertyId: dto.propertyId,
-          startDate: dto.startDate,
+          startDate: formatToShortDate(dto.startDate),
           token: invitationToken,
         },
+        true,
       );
 
-      console.log('Email sent');
+      if (user) {
+        await this.mailService.sendTenantInvitation(
+          user.email,
+          'Landlord confirmation',
+          'confirmation',
+          {
+            landlordName: `${user.firstName} ${user.lastName}`,
+            propertyAddress: property?.address,
+            tenantEmail: dto.email,
+            notificationDate: formatToShortDate(new Date(Date.now())),
+          },
+          false,
+        );
+      }
 
       return 'Email sent';
     } catch (error) {

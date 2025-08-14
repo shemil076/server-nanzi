@@ -1,0 +1,152 @@
+doctype html
+html
+  head
+    title Tenant Notification Confirmed – nanzi
+    style.
+      @import url('https://fonts.googleapis.com/css2?family=MuseoModerno:wght@600&display=swap');
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0F0F0F;
+        color: #f5f5f5;
+        font-family: 'MuseoModerno', Arial, sans-serif;
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(to bottom, #20274A, #111111 33%, #111111);
+        padding: 30px;
+        text-align: center;
+      }
+      .logo {
+        font-family: 'MuseoModerno', Arial, sans-serif;
+        font-size: 48px;
+        color: #fff;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px rgba(30, 144, 255, 0.8);
+      }
+      .logo span {
+        color: #3B82F6; /* Tailwind blue-500 */
+        font-weight: bold;
+      }
+      .tagline {
+        font-size: 16px;
+        color: #bbb;
+        margin-top: 5px;
+      }
+
+      /* Hero Section */
+      .hero {
+        text-align: center;
+        padding: 40px 20px 20px;
+      }
+      .headline {
+        font-size: 28px;
+        font-weight: bold;
+        text-shadow: 0px 0px 8px rgba(59,130,246,0.6);
+      }
+      .subtext {
+        font-size: 16px;
+        color: #5a5a5aff;
+        margin-top: 10px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Card */
+      .card {
+        margin: 40px auto;
+        padding: 25px;
+        max-width: 500px;
+        background: linear-gradient(145deg, rgba(31,31,31,0.95), rgba(45,35,65,0.95));
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        border: 1px solid rgba(30,144,255,0.2);
+        text-align: center;
+      }
+      .date-title {
+        font-size: 18px;
+        margin-bottom: 8px;
+        color: #ccc;
+      }
+      .date-value {
+        font-size: 22px;
+        font-weight: bold;
+        color: #3B82F6;
+        text-shadow: 0 0 8px rgba(59,130,246,0.6);
+      }
+
+      /* Button */
+      .button {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 14px 36px;
+        background: linear-gradient(270deg, #3B82F6, #1E40AF, #3B82F6);
+        background-size: 400% 400%;
+        animation: gradientShift 6s ease infinite;
+        color: #ffffffff;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 50px;
+        box-shadow: 0 6px 20px rgba(59,130,246,0.5);
+        text-shadow: 0px 1px 3px rgba(0,0,0,0.3);
+        font-size: 16px;
+      }
+
+      .button:link,
+      .button:visited,
+      .button:hover,
+      .button:active {
+        color: #fff !important;
+        text-decoration: none !important;
+      }
+
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+        padding: 20px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin-top: 30px;
+      }
+      .footer a {
+        color: #3B82F6;
+        text-decoration: none;
+      }
+
+  body
+    //- Header
+    .header
+      div.logo
+        span n
+        | anzi
+      div.tagline Tenant Notification Confirmed
+
+    //- Hero
+    .hero
+      div.headline Tenant Notified Successfully
+      div.subtext Dear #{landlordName}, your new tenant has been notified via email. The tenant has received the necessary information to access their new home. You can now track their move-in progress and ensure a smooth start to the tenancy.
+
+    //- Card
+    .card
+      div.date-title Tenant Email
+      div.date-value #{tenantEmail}
+      div.date-title Property Address
+      div.date-value #{propertyAddress}
+      div.date-title Notification Sent On
+      div.date-value #{notificationDate}
+
+    //- Footer
+    .footer
+      p Need help? Contact us at 
+        a(href=`mailto:${supportEmail}`) nanzi.info@gmail.com
+      p Sent by nanzi. All rights reserved.
