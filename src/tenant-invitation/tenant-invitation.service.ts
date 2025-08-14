@@ -171,14 +171,15 @@ export class TenantInvitationService {
       const createdUser =
         await this.userService.createTenantViaInvitation(createUserDto);
 
-      await this.updateInvitationsStatus(createdUser.id, 'ACCEPTED');
+      await this.updateInvitationsStatus(invitation.id, 'ACCEPTED');
 
       if (invitation.booking) {
-        await this.bookingService.linkBookingToTenant(
+        const updatedBooking = await this.bookingService.linkBookingToTenant(
           invitation.booking?.id,
           createdUser.id,
         );
       }
+      return { accepted: true };
     } catch (error) {
       console.log('Error =>>', error);
       throw new InternalServerErrorException(

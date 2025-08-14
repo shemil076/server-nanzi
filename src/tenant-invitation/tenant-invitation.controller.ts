@@ -8,6 +8,7 @@ import { User } from '../auth/user.decorator';
 import { UserPayload } from '../types/auth';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 
 @Controller('tenant-invitation')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -31,6 +32,9 @@ export class TenantInvitationController {
     return this.tenantInvitationService.verifyInvitationToken(token);
   }
 
-  // @Public()
-  // @Get()
+  @Public()
+  @Post('accept')
+  async acceptInvitation(@Body() dto: AcceptInvitationDto) {
+    return this.tenantInvitationService.acceptInvitation(dto);
+  }
 }
