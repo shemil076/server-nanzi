@@ -13,6 +13,10 @@ import { formatToShortDate } from '../utils/helper-functions';
 import { PropertyService } from '../property/property.service';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
+import { AcceptInvitationDto } from './dto/accept-invitation.dto';
+import { BookingService } from '../booking/booking.service';
+import { RegisterUserDto } from '../auth/dto/register-user.dto';
+import { InvitationStatus } from '@prisma/client';
 
 @Injectable()
 export class TenantInvitationService {
@@ -23,6 +27,7 @@ export class TenantInvitationService {
     private readonly userService: UserService,
     private readonly propertyService: PropertyService,
     private readonly configService: ConfigService,
+    private readonly bookingService: BookingService,
   ) {}
 
   async createTenantInvitation(
@@ -136,6 +141,70 @@ export class TenantInvitationService {
       console.log('Error =>>', error);
       throw new InternalServerErrorException(
         'Failed to verify invitation token' + error,
+      );
+    }
+  }
+
+  async acceptInvitation(dto: AcceptInvitationDto) {
+    try {
+      const invitation = await this.prisma.tenantInvitation.findUnique({
+        where: {
+          id: dto.invitationId,
+        },
+        include: {
+          booking: true,
+        },
+      });
+      if (!invitation) throw new NotFoundException('Invitation not found');
+      if (invitation.status === 'ACCEPTED')
+        throw new BadRequestException('Already accepted');
+      if (invitation.expiresAt < new Date())
+        throw new BadRequestException('Invitation expired');
+
+      const createUserDto: RegisterUserDto = {
+        email: invitation.email,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        role: 'TENANT',
+        password: dto.password,
+      };
+      const createdUser =
+        await this.userService.createTenantViaInvitation(createUserDto);
+
+      await this.updateInvitationsStatus(createdUser.id, 'ACCEPTED');
+
+      if (invitation.booking) {
+        await this.bookingService.linkBookingToTenant(
+          invitation.booking?.id,
+          createdUser.id,
+        );
+      }
+    } catch (error) {
+      console.log('Error =>>', error);
+      throw new InternalServerErrorException(
+        'Failed to accept the invitation' + error,
+      );
+    }
+  }
+
+  private async updateInvitationsStatus(
+    invitationId: string,
+    status: InvitationStatus,
+  ) {
+    try {
+      const updatedInvitation = this.prisma.tenantInvitation.update({
+        where: {
+          id: invitationId,
+        },
+        data: {
+          status,
+        },
+      });
+
+      return updatedInvitation;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update the invitation status' + error,
       );
     }
   }

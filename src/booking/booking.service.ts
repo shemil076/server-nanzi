@@ -89,7 +89,7 @@ export class BookingService {
     }
   }
 
-  private async linkBookingToTenant(bookingId: string, tenantId: string) {
+  async linkBookingToTenant(bookingId: string, tenantId: string) {
     try {
       const updatedBooking = await this.prisma.booking.update({
         where: {

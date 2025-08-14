@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MailModule } from '../mail/mail.module';
 import { UserModule } from '../user/user.module';
 import { PropertyModule } from '../property/property.module';
+import { BookingModule } from '../booking/booking.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PropertyModule } from '../property/property.module';
     ConfigModule,
     UserModule,
     PropertyModule,
+    BookingModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
