@@ -131,7 +131,6 @@ export class TenantInvitationService {
       if (invitation.expiresAt < new Date())
         throw new BadRequestException('Invitation expired');
 
-      console.log('invitation => -> >', invitation);
       return invitation;
     } catch (error) {
       console.log('Error =>>', error);

@@ -22,7 +22,6 @@ export class TenantInvitationController {
     @Body() dto: CreateTenantInvitationDto,
     @User() user: UserPayload,
   ) {
-    console.log('running this =>');
     return this.tenantInvitationService.createTenantInvitation(dto, user.id);
   }
 
@@ -31,4 +30,7 @@ export class TenantInvitationController {
   async verifyToken(@Query('token') token: string) {
     return this.tenantInvitationService.verifyInvitationToken(token);
   }
+
+  // @Public()
+  // @Get()
 }
