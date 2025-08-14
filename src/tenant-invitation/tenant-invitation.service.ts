@@ -117,8 +117,11 @@ export class TenantInvitationService {
       const invitation = await this.prisma.tenantInvitation.findUnique({
         where: { token },
         include: {
-          property: true,
-          booking: true,
+          booking: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
 

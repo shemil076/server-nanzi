@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { TenantInvitationService } from './tenant-invitation.service';
 import { Role } from '@prisma/client';
 import { Roles } from '../auth/role.decorator';
+import { Public } from '../auth/public.decorator';
 import { CreateTenantInvitationDto } from './dto/create-invitation.dto';
 import { User } from '../auth/user.decorator';
 import { UserPayload } from '../types/auth';
@@ -25,6 +26,7 @@ export class TenantInvitationController {
     return this.tenantInvitationService.createTenantInvitation(dto, user.id);
   }
 
+  @Public()
   @Get('verify')
   async verifyToken(@Query('token') token: string) {
     return this.tenantInvitationService.verifyInvitationToken(token);
