@@ -11,7 +11,8 @@ import { MailService } from '../mail/mail.service';
 import { UserService } from '../user/user.service';
 import { formatToShortDate } from '../utils/helper-functions';
 import { PropertyService } from '../property/property.service';
-import { verify } from 'crypto';
+import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class TenantInvitationService {
@@ -21,6 +22,7 @@ export class TenantInvitationService {
     private readonly mailService: MailService,
     private readonly userService: UserService,
     private readonly propertyService: PropertyService,
+    private readonly configService: ConfigService,
   ) {}
 
   async createTenantInvitation(
@@ -40,8 +42,10 @@ export class TenantInvitationService {
 
       const invitationToken = this.jwtService.sign(
         {
+          jti: randomUUID(),
           email: dto.email,
           bookingId: pendingBooking.id,
+          createdAt: Date.now(),
         },
         { expiresIn: '7d' }, // Let JwtService calculate exp
       );
@@ -77,6 +81,7 @@ export class TenantInvitationService {
           propertyId: dto.propertyId,
           startDate: formatToShortDate(dto.startDate),
           token: invitationToken,
+          baseUrl: this.configService.get<string>('BASE_URL'),
         },
         true,
       );
