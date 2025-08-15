@@ -53,6 +53,12 @@ export class PropertyController {
     return this.propertyService.getPropertiesSummaryByUser(user.id);
   }
 
+  @Get('current-tenant/:id')
+  @Roles(Role.LANDLORD)
+  async getCurrentTenant(@Param('id') id: string) {
+    return this.propertyService.getCurrentTenant(id);
+  }
+
   @Get(':id')
   @Roles(Role.LANDLORD)
   async getPropertyById(@Param('id') id: string) {
