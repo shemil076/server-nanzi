@@ -332,4 +332,37 @@ export class PropertyService {
       );
     }
   }
+
+  async getCurrentTenant(propertyId: string) {
+    try {
+      const currentBooking = await this.prisma.booking.findFirst({
+        where: {
+          propertyId,
+          status: 'APPROVED',
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      if (!currentBooking || !currentBooking.userId)
+        throw new NotFoundException('No tenant found');
+
+      return await this.prisma.user.findUnique({
+        where: {
+          id: currentBooking.userId,
+        },
+        select: {
+          firstName: true,
+          lastName: true,
+          email: true,
+          id: true,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch the current tenant of the property' + error,
+      );
+    }
+  }
 }
