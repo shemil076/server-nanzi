@@ -1,7 +1,7 @@
 import { IssuePriority } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class createIssueDto {
+export class CreateIssueDto {
   @IsString()
   @IsNotEmpty()
   title: string;

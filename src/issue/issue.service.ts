@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { createIssueDto } from './dto/create-issue.dto';
+import { CreateIssueDto } from './dto/create-issue.dto';
+import { UpdateIssueStatusDto } from './dto/update-status.dto';
 
 @Injectable()
 export class IssueService {
@@ -25,7 +26,7 @@ export class IssueService {
     }
   }
 
-  async createIssue(createIssueDto: createIssueDto) {
+  async createIssue(createIssueDto: CreateIssueDto) {
     try {
       const newIssue = await this.prisma.issue.create({
         data: {
@@ -37,6 +38,25 @@ export class IssueService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to fetch issues by property ' + error,
+      );
+    }
+  }
+
+  async updateStatus(dto: UpdateIssueStatusDto) {
+    try {
+      const updatedIssue = await this.prisma.issue.update({
+        where: {
+          id: dto.id,
+        },
+        data: {
+          status: dto.status,
+        },
+      });
+
+      return updatedIssue;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update issue status ' + error,
       );
     }
   }
