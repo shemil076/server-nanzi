@@ -9,10 +9,10 @@ export class PaymentService {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
-          booking: {
-            propertyId: propertyId,
-          },
-          OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],
+          // booking: {
+          //   propertyId: propertyId,
+          // },
+          // OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],
         },
         orderBy: {
           paidAt: 'desc',
@@ -31,11 +31,11 @@ export class PaymentService {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
-          booking: {
-            userId: tenantId,
-            propertyId: propertyId,
-          },
-          OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],
+          // booking: {
+          //   tenantId,
+          //   propertyId: propertyId,
+          // },
+          // OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],/
         },
         orderBy: {
           paidAt: 'desc',

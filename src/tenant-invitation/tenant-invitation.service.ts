@@ -40,6 +40,7 @@ export class TenantInvitationService {
         data: {
           propertyId: dto.propertyId,
           startDate: dto.startDate,
+          endDate: dto.endDate,
         },
       });
 

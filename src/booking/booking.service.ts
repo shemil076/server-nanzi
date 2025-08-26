@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class BookingService {
@@ -37,7 +38,7 @@ export class BookingService {
     try {
       const pendingBookingWithProperty = await this.prisma.booking.findFirst({
         where: {
-          userId: tenantId,
+          tenantId,
           status: 'PENDING',
           property: {
             status: 'PENDING',
@@ -70,17 +71,37 @@ export class BookingService {
         data: {
           status: 'APPROVED',
         },
+        include: {
+          invitation: true,
+          property: true,
+        },
       });
-      if (booking) {
-        await this.prisma.property.update({
-          where: {
-            id: booking.propertyId,
-          },
-          data: {
-            status: 'RENTED',
-          },
-        });
-      }
+
+      if (!booking || !booking.tenantId)
+        throw new NotFoundError('Booking not found');
+
+      if (!booking?.tenantId) throw new NotFoundError('Booking not found');
+
+      await this.prisma.lease.create({
+        data: {
+          propertyId: booking.propertyId,
+          tenantId: booking.tenantId as string,
+          landLordId: booking.property.landlordId,
+          startDate: booking.startDate,
+          endDate: booking.endDate,
+          rentAmount: booking.property.price,
+        },
+      });
+
+      await this.prisma.property.update({
+        where: {
+          id: booking.propertyId,
+        },
+        data: {
+          status: 'RENTED',
+        },
+      });
+
       return booking;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -96,7 +117,7 @@ export class BookingService {
           id: bookingId,
         },
         data: {
-          userId: tenantId,
+          tenantId,
         },
       });
 

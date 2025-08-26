@@ -105,66 +105,66 @@ export class PropertyService {
     }
   }
 
-  private async getUniqueTenantCount(rentedPropertyIds: string[]) {
-    try {
-      const uniqueTenants = await this.prisma.booking.findMany({
-        where: {
-          propertyId: {
-            in: rentedPropertyIds.map((property) => property),
-          },
-          status: 'APPROVED',
-        },
-        distinct: ['userId'],
-        select: {
-          userId: true,
-        },
-      });
+  // private async getUniqueTenantCount(rentedPropertyIds: string[]) {
+  //   try {
+  //     const uniqueTenants = await this.prisma.booking.findMany({
+  //       where: {
+  //         propertyId: {
+  //           in: rentedPropertyIds.map((property) => property),
+  //         },
+  //         status: 'APPROVED',
+  //       },
+  //       distinct: ['userId'],
+  //       select: {
+  //         userId: true,
+  //       },
+  //     });
 
-      return uniqueTenants.length;
-    } catch (err) {
-      throw new InternalServerErrorException(
-        'Failed to fetch tenant count ' + err,
-      );
-    }
-  }
-  private async getMonthlyRevenue(rentedPropertyIds: string[]) {
-    try {
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        0,
-        23,
-        59,
-        59,
-        999,
-      );
-      const payments = await this.prisma.payment.findMany({
-        where: {
-          status: 'APPROVED',
-          paidAt: {
-            gte: startOfMonth,
-            lte: endOfMonth,
-          },
-          booking: {
-            propertyId: {
-              in: rentedPropertyIds.map((property) => property),
-            },
-          },
-        },
-      });
+  //     return uniqueTenants.length;
+  //   } catch (err) {
+  //     throw new InternalServerErrorException(
+  //       'Failed to fetch tenant count ' + err,
+  //     );
+  //   }
+  // }
+  // private async getMonthlyRevenue(rentedPropertyIds: string[]) {
+  //   try {
+  //     const now = new Date();
+  //     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  //     const endOfMonth = new Date(
+  //       now.getFullYear(),
+  //       now.getMonth() + 1,
+  //       0,
+  //       23,
+  //       59,
+  //       59,
+  //       999,
+  //     );
+  //     const payments = await this.prisma.payment.findMany({
+  //       where: {
+  //         status: 'APPROVED',
+  //         paidAt: {
+  //           gte: startOfMonth,
+  //           lte: endOfMonth,
+  //         },
+  //         booking: {
+  //           propertyId: {
+  //             in: rentedPropertyIds.map((property) => property),
+  //           },
+  //         },
+  //       },
+  //     });
 
-      return payments.reduce(
-        (accumulator, currentValue) => accumulator + currentValue.amount,
-        0,
-      );
-    } catch (err) {
-      throw new InternalServerErrorException(
-        'Failed to fetch monthly revenue ' + err,
-      );
-    }
-  }
+  //     return payments.reduce(
+  //       (accumulator, currentValue) => accumulator + currentValue.amount,
+  //       0,
+  //     );
+  //   } catch (err) {
+  //     throw new InternalServerErrorException(
+  //       'Failed to fetch monthly revenue ' + err,
+  //     );
+  //   }
+  // }
 
   private async getIssueCountsByPriority(rentedPropertyIds: string[]) {
     try {
@@ -203,8 +203,8 @@ export class PropertyService {
         (await this.getAvailablePropertyCount(userId)) || 0;
       const rentedProperties = await this.getRentedProperties(userId);
 
-      let tenantCount = 0;
-      let monthlyRevenue = 0;
+      // let tenantCount = 0;
+      // let monthlyRevenue = 0;
       let highPriorityIssues = 0;
       let mediumPriorityIssues = 0;
       let lowPriorityIssues = 0;
@@ -212,8 +212,8 @@ export class PropertyService {
 
       if (rentedProperties.length > 0) {
         rentedPropertyCount = rentedProperties.length;
-        tenantCount = await this.getUniqueTenantCount(rentedProperties);
-        monthlyRevenue = await this.getMonthlyRevenue(rentedProperties);
+        // tenantCount = await this.getUniqueTenantCount(rentedProperties);
+        // monthlyRevenue = await this.getMonthlyRevenue(rentedProperties);
 
         const { highPriorityCount, mediumPriorityCount, lowPriorityCount } =
           await this.getIssueCountsByPriority(rentedProperties);
@@ -226,8 +226,8 @@ export class PropertyService {
       const propertyOverview = {
         availablePropertyCount,
         rentedPropertyCount,
-        tenantCount,
-        monthlyRevenue,
+        // tenantCount,
+        // monthlyRevenue,
         highPriorityIssues,
         mediumPriorityIssues,
         lowPriorityIssues,
@@ -345,12 +345,12 @@ export class PropertyService {
         },
       });
 
-      if (!currentBooking || !currentBooking.userId)
+      if (!currentBooking || !currentBooking.tenantId)
         throw new NotFoundException('No tenant found');
 
       return await this.prisma.user.findUnique({
         where: {
-          id: currentBooking.userId,
+          id: currentBooking.tenantId as string,
         },
         select: {
           firstName: true,
