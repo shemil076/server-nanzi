@@ -274,12 +274,10 @@ export class PropertyService {
 
   async getPropertyByTenant(tenantId: string) {
     try {
-      const property = await this.prisma.booking.findMany({
+      const property = await this.prisma.lease.findMany({
         where: {
-          status: 'APPROVED',
-          user: {
-            id: tenantId,
-          },
+          status: 'ACTIVE',
+          tenantId,
         },
         select: {
           property: true,
