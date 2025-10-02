@@ -12,6 +12,7 @@ import { BookingModule } from './booking/booking.module';
 import { TenantInvitationModule } from './tenant-invitation/tenant-invitation.module';
 import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UserModule } from './user/user.module';
     TenantInvitationModule,
     MailModule,
     UserModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
