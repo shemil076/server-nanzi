@@ -85,7 +85,7 @@ export class BookingService {
       await this.prisma.lease.create({
         data: {
           propertyId: booking.propertyId,
-          tenantId: booking.tenantId as string,
+          tenantId: booking.tenantId,
           landLordId: booking.property.landlordId,
           startDate: booking.startDate,
           endDate: booking.endDate,
