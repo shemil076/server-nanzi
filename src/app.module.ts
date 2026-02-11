@@ -12,6 +12,8 @@ import { BookingModule } from './booking/booking.module';
 import { TenantInvitationModule } from './tenant-invitation/tenant-invitation.module';
 import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PaymentService } from './payment/payment.service';
 
 @Module({
   imports: [
@@ -26,8 +28,9 @@ import { UserModule } from './user/user.module';
     TenantInvitationModule,
     MailModule,
     UserModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PaymentService],
 })
 export class AppModule {}

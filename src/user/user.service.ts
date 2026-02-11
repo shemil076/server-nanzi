@@ -1,7 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterUserDto } from '../auth/dto/register-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { Prisma, User } from '@prisma/client';
+import { UpdataUserDetailDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,6 +23,7 @@ export class UserService {
           firstName: true,
           lastName: true,
           email: true,
+          role: true,
         },
       });
 
@@ -54,4 +61,37 @@ export class UserService {
       );
     }
   }
+
+  updateUserInfo = async (
+    where: Prisma.UserWhereUniqueInput,
+    data: UpdataUserDetailDto,
+  ) => {
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where,
+        data,
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
+
+      return updatedUser;
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error &&
+        'code' in error &&
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        error.code === 'P2001'
+      ) {
+        throw new NotFoundException('User not found');
+      }
+
+      throw new InternalServerErrorException('Failed to update user');
+    }
+  };
 }

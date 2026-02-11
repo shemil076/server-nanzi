@@ -26,4 +26,13 @@ export class PaymentController {
   async getPaidPayments(@Param('id') id: string) {
     return this.paymentService.getPaidPayments(id);
   }
+
+  @Get('current/:propertyId')
+  @Roles(Role.TENANT)
+  async getCurrentPendingPayment(
+    @User() user: UserPayload,
+    @Param('propertyId') propertyId: string,
+  ) {
+    return this.paymentService.getCurrentPendingPayment(user.id, propertyId);
+  }
 }

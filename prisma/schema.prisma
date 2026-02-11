@@ -28,6 +28,9 @@ model User {
   RefreshToken RefreshToken[]
 
   TenantInvitation TenantInvitation[]
+
+  landlordLeases Lease[] @relation("LandlordLeases")
+  tenantLeases   Lease[] @relation("TenantLeases")
 }
 
 model RefreshToken {
@@ -67,6 +70,8 @@ model Property {
   Issue Issue[]
 
   TenantInvitation TenantInvitation[]
+
+  Lease Lease[]
 }
 
 model PropertyImage {
@@ -78,24 +83,23 @@ model PropertyImage {
 
 model Booking {
   id           String            @id @default(uuid())
-  userId       String?
+  tenantId     String?
   propertyId   String
   startDate    DateTime
-  endDate      DateTime?
+  endDate      DateTime
   status       BookingStatus     @default(PENDING)
   createdAt    DateTime          @default(now())
-  updatedAt    DateTime?         @updatedAt     // TODO: Need to remove the optional '?' symbol and make this field required
-  user         User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt    DateTime          @updatedAt
+  user         User?             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   property     Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   invitation   TenantInvitation? @relation(fields: [invitationId], references: [id])
   invitationId String?           @unique
-  Payment      Payment[]
 }
 
 model TenantInvitation {
   id           String           @id @default(uuid())
   email        String
-  token        String          @unique @db.VarChar(512)
+  token        String           @unique @db.VarChar(512)
   status       InvitationStatus @default(PENDING)
   expiresAt    DateTime
   createdAt    DateTime         @default(now())
@@ -109,12 +113,17 @@ model TenantInvitation {
 
 model Payment {
   id        String        @id @default(uuid())
-  bookingId String
+  leaseId   String
   amount    Float
-  proofUrl  String?
-  paidAt    DateTime      @default(now())
+  dueDate   DateTime
+  paidAt    DateTime?
   status    PaymentStatus @default(PENDING)
-  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  lease Lease @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  @@unique([leaseId, dueDate])
 }
 
 model Issue {
@@ -128,6 +137,40 @@ model Issue {
   images      IssueImage[]
   reportedAt  DateTime      @default(now())
   resolvedAt  DateTime?
+}
+
+model Lease {
+  id            String       @id @default(uuid())
+  propertyId    String
+  tenantId      String
+  landLordId    String
+  startDate     DateTime
+  endDate       DateTime
+  rentAmount    Float
+  depositAmount Float?
+  paymentCycle  PaymentCycle @default(MONTHLY)
+  status        LeaseStatus  @default(ACTIVE)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant   User     @relation("TenantLeases", fields: [tenantId], references: [id], onDelete: Cascade)
+  landLord User     @relation("LandlordLeases", fields: [landLordId], references: [id], onDelete: Cascade)
+
+  payments Payment[]
+}
+
+enum PaymentCycle {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum LeaseStatus {
+  ACTIVE
+  TERMINATED
+  COMPLETED
 }
 
 enum Role {
@@ -159,8 +202,8 @@ enum PropertyType {
 
 enum PaymentStatus {
   PENDING
-  APPROVED
-  REJECTED
+  PAID
+  OVERDUE
 }
 
 model IssueImage {
