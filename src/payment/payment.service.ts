@@ -116,4 +116,22 @@ export class PaymentService {
       }
     }
   }
+
+  @Cron(
+    process.env.NODE_ENV === 'production'
+      ? CronExpression.EVERY_DAY_AT_MIDNIGHT
+      : '*/30 * * * * *',
+    { timeZone: 'Asia/Colombo' },
+  )
+  async markOverDuePayment() {
+    await this.prisma.payment.updateMany({
+      where: {
+        status: 'PENDING',
+        dueDate: {
+          lt: new Date(),
+        },
+      },
+      data: { status: 'OVERDUE' },
+    });
+  }
 }
