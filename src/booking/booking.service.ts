@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { NotFoundError } from 'rxjs';
+import { addMonths } from 'date-fns';
 
 @Injectable()
 export class BookingService {
@@ -64,46 +65,50 @@ export class BookingService {
 
   async approveBooking(bookingId: string) {
     try {
-      const booking = await this.prisma.booking.update({
-        where: {
-          id: bookingId,
-        },
-        data: {
-          status: 'APPROVED',
-        },
-        include: {
-          invitation: true,
-          property: true,
-        },
-      });
+      const booking = await this.prisma.$transaction(async (tx) => {
+        const booking = await tx.booking.update({
+          where: { id: bookingId },
+          data: { status: 'APPROVED' },
+          include: { invitation: true, property: true },
+        });
 
-      if (!booking || !booking.tenantId)
-        throw new NotFoundError('Booking not found');
+        if (!booking || !booking.tenantId) {
+          throw new NotFoundError('Booking not found');
+        }
 
-      if (!booking?.tenantId) throw new NotFoundError('Booking not found');
+        const newLease = await tx.lease.create({
+          data: {
+            propertyId: booking.propertyId,
+            tenantId: booking.tenantId,
+            landLordId: booking.property.landlordId,
+            startDate: booking.startDate,
+            endDate: booking.endDate,
+            rentAmount: booking.property.price,
+          },
+        });
 
-      await this.prisma.lease.create({
-        data: {
-          propertyId: booking.propertyId,
-          tenantId: booking.tenantId,
-          landLordId: booking.property.landlordId,
-          startDate: booking.startDate,
-          endDate: booking.endDate,
-          rentAmount: booking.property.price,
-        },
-      });
+        const nextDueDate = addMonths(newLease.startDate, 1);
 
-      await this.prisma.property.update({
-        where: {
-          id: booking.propertyId,
-        },
-        data: {
-          status: 'RENTED',
-        },
+        await tx.payment.create({
+          data: {
+            leaseId: newLease.id,
+            amount: newLease.rentAmount,
+            dueDate: nextDueDate,
+            paidAt: null,
+          },
+        });
+
+        await tx.property.update({
+          where: { id: booking.propertyId },
+          data: { status: 'RENTED' },
+        });
+
+        return booking;
       });
 
       return booking;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Failed to approve the booking ' + error,
       );
