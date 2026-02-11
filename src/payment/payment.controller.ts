@@ -14,14 +14,25 @@ export class PaymentController {
 
   @Get('tenant/:propertyId')
   @Roles(Role.TENANT)
-  async getTenantsPayments() {
-    // @Param('propertyId') propertyId: string, // @User() user: UserPayload,
-    return this.paymentService.getCurrentTenantsPayments();
+  async getTenantsPayments(
+    @User() user: UserPayload,
+    @Param('propertyId') propertyId: string,
+  ) {
+    return this.paymentService.getCurrentTenantsPayments(user.id, propertyId);
   }
 
   @Get(':id')
   @Roles(Role.LANDLORD)
-  async getPaidPayments() {
-    return this.paymentService.getPaidPayments();
+  async getPaidPayments(@Param('id') id: string) {
+    return this.paymentService.getPaidPayments(id);
+  }
+
+  @Get('current/:propertyId')
+  @Roles(Role.TENANT)
+  async getCurrentPendingPayment(
+    @User() user: UserPayload,
+    @Param('propertyId') propertyId: string,
+  ) {
+    return this.paymentService.getCurrentPendingPayment(user.id, propertyId);
   }
 }

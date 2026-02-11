@@ -8,14 +8,13 @@ import { Prisma } from '@prisma/client';
 export class PaymentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPaidPayments() {
+  async getPaidPayments(propertyId: string) {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
-          // booking: {
-          //   propertyId: propertyId,
-          // },
-          // OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],
+          lease: {
+            propertyId: propertyId,
+          },
         },
         orderBy: {
           paidAt: 'desc',
@@ -30,14 +29,33 @@ export class PaymentService {
     }
   }
 
-  async getCurrentTenantsPayments() {
+  async getCurrentPendingPayment(tenantId: string, propertyId: string) {
+    try {
+      const currentPendingPayment = await this.prisma.payment.findFirst({
+        where: {
+          status: 'PENDING',
+          lease: {
+            propertyId: propertyId,
+            tenantId: tenantId,
+          },
+        },
+      });
+      return currentPendingPayment;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        "Failed to fetch the tenant's current payments" + error,
+      );
+    }
+  }
+
+  async getCurrentTenantsPayments(tenantId: string, propertyId: string) {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
-          // booking: {
-          //   tenantId,
-          //   propertyId: propertyId,
-          // },
+          lease: {
+            tenantId,
+            propertyId: propertyId,
+          },
           // OR: [{ status: 'APPROVED' }, { status: 'REJECTED' }],/
         },
         orderBy: {
