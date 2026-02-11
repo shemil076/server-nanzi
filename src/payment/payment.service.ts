@@ -2,12 +2,13 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { addMonths } from 'date-fns';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPaidPayments(propertyId: string) {
+  async getPaidPayments() {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
@@ -29,7 +30,7 @@ export class PaymentService {
     }
   }
 
-  async getCurrentTenantsPayments(tenantId: string, propertyId: string) {
+  async getCurrentTenantsPayments() {
     try {
       const payments = await this.prisma.payment.findMany({
         where: {
@@ -51,38 +52,45 @@ export class PaymentService {
     }
   }
 
-  private isRunningCroneJob = false;
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
-    name: 'generate-monthly-payment',
-    timeZone: 'Asia/Colombo',
-  })
+  @Cron(
+    process.env.NODE_ENV === 'production'
+      ? CronExpression.EVERY_DAY_AT_MIDNIGHT
+      : '*/30 * * * * *',
+    { timeZone: 'Asia/Colombo' },
+  )
   async generateMonthlyPayment() {
-    if (this.isRunningCroneJob) return;
-
-    this.isRunningCroneJob = true;
-
+    console.log('Running cron job to create a payment');
     try {
       const leases = await this.prisma.lease.findMany({
-        where: {
-          status: 'ACTIVE',
+        where: { status: 'ACTIVE' },
+        include: {
+          payments: {
+            orderBy: { dueDate: 'desc' },
+            take: 1,
+          },
         },
       });
 
-      for (const lease of leases) {
-        const lastPayment = await this.prisma.payment.findFirst({
-          where: {
-            leaseId: lease.id,
-          },
-          orderBy: {
-            dueDate: 'desc',
-          },
-        });
+      console.log(`Lease count ${leases.length}`);
 
-        const nextDueDate = lastPayment
-          ? addMonths(lastPayment.dueDate, 1)
-          : lease.startDate;
+      for (const leaseData of leases) {
+        const { payments, ...lease } = leaseData;
 
-        if (nextDueDate < lease.endDate) {
+        console.log(`Current lease => ${lease.id}`);
+
+        const lastPaymentDate = payments[0]
+          ? new Date(payments[0].dueDate)
+          : new Date(lease.startDate);
+
+        const nextDueDate = addMonths(lastPaymentDate, 1);
+
+        console.log(
+          `nextDueDate before condition => ${nextDueDate.toDateString()}`,
+        );
+
+        if (nextDueDate <= lease.endDate && new Date() >= nextDueDate) {
+          console.log(`nextDueDate => ${nextDueDate.toDateString()}`);
+
           await this.prisma.payment.create({
             data: {
               leaseId: lease.id,
@@ -96,10 +104,16 @@ export class PaymentService {
           );
         }
       }
-    } catch (error) {
-      console.error('Error generating payments:', error);
-    } finally {
-      this.isRunningCroneJob = false;
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          console.log('Payment already exists, skipping...');
+        } else {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
     }
   }
 }

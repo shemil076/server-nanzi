@@ -13,6 +13,7 @@ import { TenantInvitationModule } from './tenant-invitation/tenant-invitation.mo
 import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { PaymentService } from './payment/payment.service';
 
 @Module({
   imports: [
@@ -30,6 +31,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PaymentService],
 })
 export class AppModule {}

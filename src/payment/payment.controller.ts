@@ -14,16 +14,14 @@ export class PaymentController {
 
   @Get('tenant/:propertyId')
   @Roles(Role.TENANT)
-  async getTenantsPayments(
-    @User() user: UserPayload,
-    @Param('propertyId') propertyId: string,
-  ) {
-    return this.paymentService.getCurrentTenantsPayments(user.id, propertyId);
+  async getTenantsPayments() {
+    // @Param('propertyId') propertyId: string, // @User() user: UserPayload,
+    return this.paymentService.getCurrentTenantsPayments();
   }
 
   @Get(':id')
   @Roles(Role.LANDLORD)
-  async getPaidPayments(@Param('id') id: string) {
-    return this.paymentService.getPaidPayments(id);
+  async getPaidPayments() {
+    return this.paymentService.getPaidPayments();
   }
 }

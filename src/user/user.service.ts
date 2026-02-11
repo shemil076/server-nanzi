@@ -65,11 +65,18 @@ export class UserService {
   updateUserInfo = async (
     where: Prisma.UserWhereUniqueInput,
     data: UpdataUserDetailDto,
-  ): Promise<User> => {
+  ) => {
     try {
       const updatedUser = await this.prisma.user.update({
         where,
         data,
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          firstName: true,
+          lastName: true,
+        },
       });
 
       return updatedUser;

@@ -122,6 +122,8 @@ model Payment {
   updatedAt DateTime      @updatedAt
 
   lease Lease @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  @@unique([leaseId, dueDate])
 }
 
 model Issue {
