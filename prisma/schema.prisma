@@ -123,7 +123,20 @@ model Payment {
 
   lease Lease @relation(fields: [leaseId], references: [id], onDelete: Cascade)
 
+  installment Installment[]
+
   @@unique([leaseId, dueDate])
+}
+
+model Installment {
+  id        String    @id @default(uuid())
+  paymentId String
+  amount    Float
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 }
 
 model Issue {
@@ -204,6 +217,7 @@ enum PaymentStatus {
   PENDING
   PAID
   OVERDUE
+  PARTIAL
 }
 
 model IssueImage {

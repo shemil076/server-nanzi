@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -6,6 +6,7 @@ import { Roles } from '../auth/role.decorator';
 import { Role } from '@prisma/client';
 import { UserPayload } from '../types/auth';
 import { User } from '../auth/user.decorator';
+import { NewInstallmentDto } from '../installment/dto/new-installment.dto';
 
 @Controller('payment')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -34,5 +35,11 @@ export class PaymentController {
     @Param('propertyId') propertyId: string,
   ) {
     return this.paymentService.getCurrentPendingPayment(user.id, propertyId);
+  }
+
+  @Patch('full-payment')
+  @Roles(Role.TENANT)
+  async payFullPayment(@Body() dto: NewInstallmentDto) {
+    return this.paymentService.payFullPayment(dto);
   }
 }

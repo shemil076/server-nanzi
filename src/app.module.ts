@@ -14,6 +14,7 @@ import { MailModule } from './mail/mail.module';
 import { UserModule } from './user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PaymentService } from './payment/payment.service';
+import { InstallmentModule } from './installment/installment.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PaymentService } from './payment/payment.service';
     MailModule,
     UserModule,
     ScheduleModule.forRoot(),
+    InstallmentModule,
   ],
   controllers: [AppController],
   providers: [AppService, PaymentService],

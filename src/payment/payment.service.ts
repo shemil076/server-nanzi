@@ -3,10 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { addMonths } from 'date-fns';
 import { Prisma } from '@prisma/client';
+import { InstallmentService } from '../installment/installment.service';
+import { NewInstallmentDto } from '../installment/dto/new-installment.dto';
 
 @Injectable()
 export class PaymentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly installmentService: InstallmentService,
+  ) {}
 
   async getPaidPayments(propertyId: string) {
     try {
@@ -66,6 +71,31 @@ export class PaymentService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to fetch the current tenants paid payments' + error,
+      );
+    }
+  }
+
+  async payFullPayment(newInstallmentDto: NewInstallmentDto) {
+    try {
+      const fullyPaidInstallment =
+        await this.installmentService.createInstallment(newInstallmentDto);
+
+      if (fullyPaidInstallment != null) {
+        const paidPayment = await this.prisma.payment.update({
+          where: {
+            id: newInstallmentDto.paymentId,
+          },
+          data: {
+            status: 'PAID',
+          },
+        });
+
+        return paidPayment;
+      }
+      return null;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to pay the full payment' + error,
       );
     }
   }
