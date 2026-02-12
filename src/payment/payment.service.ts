@@ -87,6 +87,7 @@ export class PaymentService {
           },
           data: {
             status: 'PAID',
+            paidAt: new Date(),
           },
         });
 

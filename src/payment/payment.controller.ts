@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -37,7 +37,7 @@ export class PaymentController {
     return this.paymentService.getCurrentPendingPayment(user.id, propertyId);
   }
 
-  @Patch('full-payment')
+  @Post('full-payment')
   @Roles(Role.TENANT)
   async payFullPayment(@Body() dto: NewInstallmentDto) {
     return this.paymentService.payFullPayment(dto);
