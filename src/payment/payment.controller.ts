@@ -30,11 +30,11 @@ export class PaymentController {
 
   @Get('current/:propertyId')
   @Roles(Role.TENANT)
-  async getCurrentPendingPayment(
+  async getCurrentMonthPayment(
     @User() user: UserPayload,
     @Param('propertyId') propertyId: string,
   ) {
-    return this.paymentService.getCurrentPendingPayment(user.id, propertyId);
+    return this.paymentService.getThisMonthRentPayment(user.id, propertyId);
   }
 
   @Post('full-payment')

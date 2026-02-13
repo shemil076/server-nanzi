@@ -34,9 +34,9 @@ export class PaymentService {
     }
   }
 
-  async getCurrentPendingPayment(tenantId: string, propertyId: string) {
+  async getThisMonthRentPayment(tenantId: string, propertyId: string) {
     try {
-      const currentPendingPayment = await this.prisma.payment.findFirst({
+      let payment = await this.prisma.payment.findFirst({
         where: {
           status: 'PENDING',
           lease: {
@@ -45,7 +45,20 @@ export class PaymentService {
           },
         },
       });
-      return currentPendingPayment;
+      if (payment) return payment;
+      payment = await this.prisma.payment.findFirst({
+        where: {
+          lease: {
+            propertyId: propertyId,
+            tenantId: tenantId,
+          },
+          dueDate: {
+            gte: new Date(),
+          },
+        },
+      });
+      console.log('payment =>> ', payment);
+      return payment;
     } catch (error) {
       throw new InternalServerErrorException(
         "Failed to fetch the tenant's current payments" + error,
@@ -108,7 +121,7 @@ export class PaymentService {
     { timeZone: 'Asia/Colombo' },
   )
   async generateMonthlyPayment() {
-    console.log('Running cron job to create a payment');
+    // console.log('Running cron job to create a payment');
     try {
       const leases = await this.prisma.lease.findMany({
         where: { status: 'ACTIVE' },
@@ -120,7 +133,7 @@ export class PaymentService {
         },
       });
 
-      console.log(`Lease count ${leases.length}`);
+      // console.log(`Lease count ${leases.length}`);
 
       for (const leaseData of leases) {
         const { payments, ...lease } = leaseData;
@@ -133,9 +146,9 @@ export class PaymentService {
 
         const nextDueDate = addMonths(lastPaymentDate, 1);
 
-        console.log(
-          `nextDueDate before condition => ${nextDueDate.toDateString()}`,
-        );
+        // console.log(
+        //   `nextDueDate before condition => ${nextDueDate.toDateString()}`,
+        // );
 
         if (nextDueDate <= lease.endDate && new Date() >= nextDueDate) {
           console.log(`nextDueDate => ${nextDueDate.toDateString()}`);
@@ -148,9 +161,9 @@ export class PaymentService {
             },
           });
 
-          console.log(
-            `Payment generated for lease ${lease.id} on ${nextDueDate.toLocaleDateString()}`,
-          );
+          // console.log(
+          //   `Payment generated for lease ${lease.id} on ${nextDueDate.toLocaleDateString()}`,
+          // );
         }
       }
     } catch (error: unknown) {
