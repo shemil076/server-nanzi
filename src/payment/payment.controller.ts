@@ -42,4 +42,10 @@ export class PaymentController {
   async payFullPayment(@Body() dto: NewInstallmentDto) {
     return this.paymentService.payFullPayment(dto);
   }
+
+  @Post('installment')
+  @Roles(Role.TENANT)
+  async payInstallmentPayment(@Body() dto: NewInstallmentDto) {
+    return this.paymentService.payInstallment(dto);
+  }
 }
