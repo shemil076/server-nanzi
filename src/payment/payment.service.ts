@@ -10,6 +10,7 @@ import { addMonths } from 'date-fns';
 import { PaymentStatus, Prisma } from '@prisma/client';
 import { InstallmentService } from '../installment/installment.service';
 import { NewInstallmentDto } from '../installment/dto/new-installment.dto';
+import { DeleteInstallmentDto } from './dto/delete-installment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -176,6 +177,37 @@ export class PaymentService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to pay the installment' + error,
+      );
+    }
+  }
+
+  async deleteInstallmentAndUpdatePayment(
+    deleteInstallmentDto: DeleteInstallmentDto,
+  ) {
+    try {
+      const payment = await this.prisma.$transaction(async (tx) => {
+        await tx.installment.delete({
+          where: {
+            id: deleteInstallmentDto.installmentId,
+          },
+        });
+
+        const payment = await tx.payment.update({
+          where: {
+            id: deleteInstallmentDto.paymentId,
+          },
+          data: {
+            status: 'PARTIAL',
+          },
+        });
+
+        return payment;
+      });
+      return payment;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        'Failed to delete the installment and update payment ' + error,
       );
     }
   }
