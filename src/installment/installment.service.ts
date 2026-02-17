@@ -13,6 +13,7 @@ export class InstallmentService {
           paymentId: installmentDto.paymentId,
           amount: installmentDto.amount,
           paidAt: new Date(),
+          status: 'PAID',
         },
       });
 
@@ -21,6 +22,22 @@ export class InstallmentService {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
         `Failed to pay the installment : ${message}`,
+      );
+    }
+  }
+
+  async fetchInstallmentByPaymentId(paymentId: string) {
+    try {
+      const installments = await this.prisma.installment.findMany({
+        where: {
+          paymentId,
+        },
+      });
+      return installments;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(
+        `Failed to fetch the installments : ${message}`,
       );
     }
   }

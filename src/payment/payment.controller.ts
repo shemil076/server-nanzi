@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RoleGuard } from '../auth/role.guard';
@@ -7,6 +15,7 @@ import { Role } from '@prisma/client';
 import { UserPayload } from '../types/auth';
 import { User } from '../auth/user.decorator';
 import { NewInstallmentDto } from '../installment/dto/new-installment.dto';
+import { DeleteInstallmentDto } from './dto/delete-installment.dto';
 
 @Controller('payment')
 @UseGuards(JwtAuthGuard, RoleGuard)
@@ -41,5 +50,19 @@ export class PaymentController {
   @Roles(Role.TENANT)
   async payFullPayment(@Body() dto: NewInstallmentDto) {
     return this.paymentService.payFullPayment(dto);
+  }
+
+  @Post('installment')
+  @Roles(Role.TENANT)
+  async payInstallmentPayment(@Body() dto: NewInstallmentDto) {
+    return this.paymentService.payInstallment(dto);
+  }
+
+  @Delete(':paymentId/installment/:installmentId')
+  @Roles(Role.TENANT)
+  removeInstallment(@Param() deleteInstallmentDto: DeleteInstallmentDto) {
+    return this.paymentService.deleteInstallmentAndUpdatePayment(
+      deleteInstallmentDto,
+    );
   }
 }

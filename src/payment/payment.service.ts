@@ -1,10 +1,16 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { addMonths } from 'date-fns';
-import { Prisma } from '@prisma/client';
+import { PaymentStatus, Prisma } from '@prisma/client';
 import { InstallmentService } from '../installment/installment.service';
 import { NewInstallmentDto } from '../installment/dto/new-installment.dto';
+import { DeleteInstallmentDto } from './dto/delete-installment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -110,6 +116,98 @@ export class PaymentService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to pay the full payment' + error,
+      );
+    }
+  }
+
+  async payInstallment(newInstallmentDto: NewInstallmentDto) {
+    try {
+      const currentPayment = await this.prisma.payment.findUnique({
+        where: {
+          id: newInstallmentDto.paymentId,
+        },
+        include: {
+          installment: true,
+        },
+      });
+
+      const installments = currentPayment?.installment;
+
+      const totalPaidAmount =
+        installments?.reduce((sum, item) => sum + item.amount, 0) ?? 0;
+
+      if (
+        currentPayment != null &&
+        currentPayment.amount >= totalPaidAmount + newInstallmentDto.amount
+      ) {
+        const newInstallment =
+          await this.installmentService.createInstallment(newInstallmentDto);
+
+        const paymentStatus =
+          currentPayment.amount == totalPaidAmount + newInstallmentDto.amount
+            ? PaymentStatus.PAID
+            : PaymentStatus.PARTIAL;
+
+        const paidAt = paymentStatus == PaymentStatus.PAID ? new Date() : null;
+
+        if (newInstallment != null) {
+          const paidPayment = await this.prisma.payment.update({
+            where: {
+              id: newInstallmentDto.paymentId,
+            },
+            data: {
+              status: paymentStatus,
+              paidAt,
+            },
+          });
+
+          return paidPayment;
+        }
+      } else {
+        if (!currentPayment) {
+          throw new NotFoundException(
+            `Payment with ID ${newInstallmentDto.paymentId} not found`,
+          );
+        } else {
+          throw new BadRequestException(
+            `Installment amount exceeds remaining payment. Payment amount: ${currentPayment.amount}, Already paid: ${totalPaidAmount}, Attempted new installment: ${newInstallmentDto.amount}`,
+          );
+        }
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to pay the installment' + error,
+      );
+    }
+  }
+
+  async deleteInstallmentAndUpdatePayment(
+    deleteInstallmentDto: DeleteInstallmentDto,
+  ) {
+    try {
+      const payment = await this.prisma.$transaction(async (tx) => {
+        await tx.installment.delete({
+          where: {
+            id: deleteInstallmentDto.installmentId,
+          },
+        });
+
+        const payment = await tx.payment.update({
+          where: {
+            id: deleteInstallmentDto.paymentId,
+          },
+          data: {
+            status: 'PARTIAL',
+          },
+        });
+
+        return payment;
+      });
+      return payment;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(
+        'Failed to delete the installment and update payment ' + error,
       );
     }
   }
