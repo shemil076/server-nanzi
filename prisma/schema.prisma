@@ -129,12 +129,12 @@ model Payment {
 }
 
 model Installment {
-  id        String    @id @default(uuid())
+  id        String            @id @default(uuid())
   paymentId String
   amount    Float
   paidAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
   status    InstallmentStatus
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
@@ -151,6 +151,12 @@ model Issue {
   images      IssueImage[]
   reportedAt  DateTime      @default(now())
   resolvedAt  DateTime?
+
+  aiCategory    String?
+  aiUrgency     String?
+  aiDescription String?
+  aiSuggestions String?
+  aiConfidence  Float?
 }
 
 model Lease {

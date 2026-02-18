@@ -32,13 +32,20 @@ export class IssueService {
 
   async createIssue(createIssueDto: CreateIssueDto) {
     try {
+      const aiClassifications = await this.aiService.classifyMaintenanceTicket(
+        createIssueDto.description,
+      );
+
       const newIssue = await this.prisma.issue.create({
         data: {
           ...createIssueDto,
+          aiCategory: aiClassifications.category,
+          aiConfidence: aiClassifications.confidence,
+          aiDescription: aiClassifications.description,
+          aiSuggestions: aiClassifications.suggestions,
+          aiUrgency: aiClassifications.urgency,
         },
       });
-
-      await this.aiService.classifyMaintenanceTicket(newIssue.description);
 
       return newIssue;
     } catch (error) {
