@@ -15,6 +15,7 @@ import { UserModule } from './user/user.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PaymentService } from './payment/payment.service';
 import { InstallmentModule } from './installment/installment.module';
+import { AiServiceModule } from './ai-service/ai-service.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { InstallmentModule } from './installment/installment.module';
     UserModule,
     ScheduleModule.forRoot(),
     InstallmentModule,
+    AiServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService, PaymentService],
