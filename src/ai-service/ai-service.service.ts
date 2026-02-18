@@ -12,7 +12,7 @@ export class AiServiceService {
     try {
       const res =
         await this.httpService.axiosRef.post<AiClassificationResponse>(
-          'http://host.docker.internal:8000/ai/classify',
+          '/ai/classify',
           {
             ticket_description: description,
           },
