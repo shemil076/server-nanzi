@@ -39,18 +39,21 @@ export class IssueService {
       const newIssue = await this.prisma.issue.create({
         data: {
           ...createIssueDto,
-          aiCategory: aiClassifications.category,
-          aiConfidence: aiClassifications.confidence,
-          aiDescription: aiClassifications.description,
-          aiSuggestions: aiClassifications.suggestions,
-          aiUrgency: aiClassifications.urgency,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          ai_category: aiClassifications.category,
+          ai_confidence: aiClassifications.confidence,
+          ai_description: aiClassifications.description,
+          ai_suggestions: aiClassifications.suggestions,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          ai_urgency: aiClassifications.urgency,
+          ai_processedAt: new Date(),
         },
       });
 
       return newIssue;
     } catch (error) {
       throw new InternalServerErrorException(
-        'Failed to fetch issues by property ' + error,
+        'Failed to create the issue' + error,
       );
     }
   }

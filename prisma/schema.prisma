@@ -152,11 +152,12 @@ model Issue {
   reportedAt  DateTime      @default(now())
   resolvedAt  DateTime?
 
-  aiCategory    String?
-  aiUrgency     String?
-  aiDescription String?
-  aiSuggestions String?
-  aiConfidence  Float?
+  ai_category    Ai_MaintenanceCategory?
+  ai_urgency     Ai_MaintenanceUrgencyLevel?
+  ai_description String?
+  ai_suggestions String?
+  ai_confidence  Float?
+  ai_processedAt DateTime?
 }
 
 model Lease {
@@ -259,4 +260,27 @@ enum InvitationStatus {
   ACCEPTED
   EXPIRED
   CANCELED
+}
+
+enum Ai_MaintenanceCategory {
+  ELECTRICAL
+  PLUMBING
+  CLEANING
+  CARPENTRY
+  PAINTING
+  APPLIANCE
+  STRUCTURAL
+  PEST_CONTROL
+  LANDSCAPING
+  SECURITY
+  FIRE_SAFETY
+  ELEVATOR
+  GENERAL
+}
+
+enum Ai_MaintenanceUrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
