@@ -137,7 +137,8 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as any,
     });
 
     return { accessToken, refreshToken };

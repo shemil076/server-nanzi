@@ -3,9 +3,10 @@ import { IssueService } from './issue.service';
 import { IssueController } from './issue.controller';
 import { JwtUtils } from '../utils/auth.utils';
 import { PrismaModule } from '../prisma/prisma.module';
+import { AiServiceModule } from '../ai-service/ai-service.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AiServiceModule],
   providers: [IssueService, JwtUtils],
   controllers: [IssueController],
 })

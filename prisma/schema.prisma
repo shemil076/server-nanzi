@@ -129,12 +129,12 @@ model Payment {
 }
 
 model Installment {
-  id        String    @id @default(uuid())
+  id        String            @id @default(uuid())
   paymentId String
   amount    Float
   paidAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
   status    InstallmentStatus
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
@@ -151,6 +151,13 @@ model Issue {
   images      IssueImage[]
   reportedAt  DateTime      @default(now())
   resolvedAt  DateTime?
+
+  ai_category    Ai_MaintenanceCategory?
+  ai_urgency     Ai_MaintenanceUrgencyLevel?
+  ai_description String?
+  ai_suggestions String?
+  ai_confidence  Float?
+  ai_processedAt DateTime?
 }
 
 model Lease {
@@ -253,4 +260,27 @@ enum InvitationStatus {
   ACCEPTED
   EXPIRED
   CANCELED
+}
+
+enum Ai_MaintenanceCategory {
+  ELECTRICAL
+  PLUMBING
+  CLEANING
+  CARPENTRY
+  PAINTING
+  APPLIANCE
+  STRUCTURAL
+  PEST_CONTROL
+  LANDSCAPING
+  SECURITY
+  FIRE_SAFETY
+  ELEVATOR
+  GENERAL
+}
+
+enum Ai_MaintenanceUrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }

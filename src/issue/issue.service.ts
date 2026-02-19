@@ -2,10 +2,14 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueStatusDto } from './dto/update-status.dto';
+import { AiServiceService } from '../ai-service/ai-service.service';
 
 @Injectable()
 export class IssueService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiService: AiServiceService,
+  ) {}
 
   async getIssuesByProperty(propertyId: string) {
     try {
@@ -28,16 +32,28 @@ export class IssueService {
 
   async createIssue(createIssueDto: CreateIssueDto) {
     try {
+      const aiClassifications = await this.aiService.classifyMaintenanceTicket(
+        createIssueDto.description,
+      );
+
       const newIssue = await this.prisma.issue.create({
         data: {
           ...createIssueDto,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          ai_category: aiClassifications.category,
+          ai_confidence: aiClassifications.confidence,
+          ai_description: aiClassifications.description,
+          ai_suggestions: aiClassifications.suggestions,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          ai_urgency: aiClassifications.urgency,
+          ai_processedAt: new Date(),
         },
       });
 
       return newIssue;
     } catch (error) {
       throw new InternalServerErrorException(
-        'Failed to fetch issues by property ' + error,
+        'Failed to create the issue' + error,
       );
     }
   }
