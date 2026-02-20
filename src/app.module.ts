@@ -16,6 +16,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { PaymentService } from './payment/payment.service';
 import { InstallmentModule } from './installment/installment.module';
 import { AiServiceModule } from './ai-service/ai-service.module';
+import { ChatService } from './chat/chat.service';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -33,8 +35,9 @@ import { AiServiceModule } from './ai-service/ai-service.module';
     ScheduleModule.forRoot(),
     InstallmentModule,
     AiServiceModule,
+    ChatModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PaymentService],
+  providers: [AppService, PaymentService, ChatService],
 })
 export class AppModule {}
