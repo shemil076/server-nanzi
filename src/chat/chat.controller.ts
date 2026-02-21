@@ -1,4 +1,4 @@
-import { Controller, Query, Sse } from '@nestjs/common';
+import { Controller, Param, Post, Query, Sse } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Observable } from 'rxjs';
 
@@ -10,4 +10,9 @@ export class ChatController {
     stream(@Query('message') message: string): Observable<MessageEvent> {
     return this.chatService.streamFromFastApi(message);
   }
+
+  @Post('new/:userId')
+    async initializeNewConversation(@Param('userId')userId: string) {
+      return this.chatService.initializeConversation(userId);
+    }
 }
