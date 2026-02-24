@@ -72,7 +72,7 @@ export class ChatService {
     }
 
     await this.redisService.saveNewMessage(conversationId, userMessage);
-    
+
     const cleanedText = assistantFullText
       .map((word) => word.trim().replace(/,$/, ''))
       .join(' ');
@@ -98,7 +98,7 @@ export class ChatService {
 
       await this.redisService.saveConversation(conversation.id, conversation);
 
-      return conversation;
+      return conversation.id;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(

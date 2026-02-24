@@ -40,8 +40,8 @@ export class ChatController {
   res.setHeader('Connection', 'keep-alive');
 
   await this.chatService.streamFromFastApi(
-    message,
     conversationId,
+    message,
     res,
   );
 
