@@ -32,14 +32,20 @@ export class ChatService {
       conversationId: conversationId,
     };
 
+    // Saving the user's message
+    await this.redisService.saveNewMessage(conversationId, userMessage);
+
     const history = await this.redisService.getMessages(conversationId);
+
+     const historyArray = history.map(({content, role}) => ({role, content}));
+
 
     const response = await fetch(
       'http://host.docker.internal:8000/chat/stream',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ historyArray }),
       },
     );
     if (!response.body) {
@@ -71,12 +77,12 @@ export class ChatService {
       }
     }
 
-    await this.redisService.saveNewMessage(conversationId, userMessage);
 
     const cleanedText = assistantFullText
       .map((word) => word.trim().replace(/,$/, ''))
       .join(' ');
 
+    // Saving the assistant's message
     await this.redisService.saveNewMessage(conversationId, {
       id: uuidv4(),
       role: 'assistant',
