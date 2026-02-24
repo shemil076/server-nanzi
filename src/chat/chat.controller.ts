@@ -16,40 +16,36 @@ import { RoleGuard } from '../auth/role.guard';
 import { User } from '../auth/user.decorator';
 import { UserPayload } from '../types/auth';
 import { Response, Request } from 'express';
+import { RedisService } from '../redis/redis.service';
+import { Message } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private redisService: RedisService,
+  ) {}
 
-  @Post('stream')
+  @Post('stream/:conversationId')
   async stream(
     @Body('message') message: string,
     @Req() req: Request,
     @Res() res: Response,
+    @Param('conversationId') conversationId: string,
   ) {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
 
-    const stream = await this.chatService.streamFromFastApi(message);
+  await this.chatService.streamFromFastApi(
+    message,
+    conversationId,
+    res,
+  );
 
-    if (!stream) {
-      throw new Error('No stream returned from FastAPI');
-    }
-
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      res.write(chunk);
-    }
-
-    res.end();
+  res.end();
   }
 
   @Post('new')

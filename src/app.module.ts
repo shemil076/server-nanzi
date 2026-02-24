@@ -18,6 +18,7 @@ import { InstallmentModule } from './installment/installment.module';
 import { AiServiceModule } from './ai-service/ai-service.module';
 import { ChatService } from './chat/chat.service';
 import { ChatModule } from './chat/chat.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ChatModule } from './chat/chat.module';
     InstallmentModule,
     AiServiceModule,
     ChatModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService, PaymentService, ChatService],
