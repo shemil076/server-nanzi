@@ -44,6 +44,7 @@ export class ChatService {
     const historyArray = history.map(({ metadata, role }) => ({
       role,
       content: (metadata as { content: string })?.content ?? '',
+      node_id: (metadata as { node_id: string })?.node_id ?? null,
     }));
 
     const response = await fetch(
@@ -167,7 +168,7 @@ export class ChatService {
       for (const eventString of event) {
         if (!eventString.trim()) continue;
 
-        const jsonString = eventString.replace(/^data:\s*/, '').trim();
+        const jsonString = eventString.replace(/^data:\s*/, '').trim();      
         if (jsonString === '[DONE]') continue;
 
         try {
@@ -186,6 +187,22 @@ export class ChatService {
       }
     }
 
+
+    if(assistantFullText.length > 0) {
+      const cleanedText = assistantFullText.map(word => word.trim().replace(/,$/, '')).join(' ')
+
+      await this.redisService.saveNewMessage(conversationId, {
+        id: uuidv4(),
+      role: 'ASSISTANT',
+      content: null,
+      createdAt: new Date(),
+      conversationId,
+      metadata: { content: cleanedText },
+      type: 'TEXT',
+      })
+    }
+
+
     for (const item of parsedItemsArray) {
       if (item.type == 'CHIP_RESPONSE') {
         await this.redisService.saveNewMessage(conversationId, {
@@ -201,20 +218,6 @@ export class ChatService {
           type: 'CHIP_RESPONSE',
         });
       }
-    }
-
-    if(assistantFullText.length > 0) {
-      const cleanedText = assistantFullText.map(word => word.trim().replace(/,$/, '')).join(' ')
-
-      await this.redisService.saveNewMessage(conversationId, {
-        id: uuidv4(),
-      role: 'ASSISTANT',
-      content: null,
-      createdAt: new Date(),
-      conversationId,
-      metadata: { content: cleanedText },
-      type: 'TEXT',
-      })
     }
 
     return response.body;
