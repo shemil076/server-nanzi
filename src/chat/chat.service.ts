@@ -47,8 +47,19 @@ export class ChatService {
       node_id: (metadata as { node_id: string })?.node_id ?? null,
     }));
 
+    const conversation = await this.prismaService.conversation.findUnique({
+      where: {
+        id: conversationId
+      }, 
+      select: {
+        propertyId: true
+      }
+    })
+
+    console.log("property id --> ", conversation?.propertyId)
+
     const response = await fetch(
-      'http://host.docker.internal:8000/chat/stream',
+      `http://host.docker.internal:8000/chat/stream?propertyId=${conversation?.propertyId}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -223,11 +234,12 @@ export class ChatService {
     return response.body;
   }
 
-  async initializeConversation(userId: string) {
+  async initializeConversation(userId: string, propertyId: string) {
     try {
       const conversation = await this.prismaService.conversation.create({
         data: {
-          userId: userId,
+          userId,
+          propertyId: propertyId
         },
       });
 

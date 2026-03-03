@@ -48,8 +48,8 @@ export class ChatController {
   res.end();
   }
 
-  @Post('new')
-  async initializeNewConversation(@User() user: UserPayload) {
-    return this.chatService.initializeConversation(user.id);
+  @Post('new/:propertyId')
+  async initializeNewConversation(@User() user: UserPayload, @Param("propertyId") propertyId: string) {
+    return this.chatService.initializeConversation(user.id, propertyId);
   }
 }

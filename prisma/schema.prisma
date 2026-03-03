@@ -73,6 +73,7 @@ model Property {
   TenantInvitation TenantInvitation[]
 
   Lease Lease[]
+  conversations  Conversation[]
 }
 
 model PropertyImage {
@@ -185,10 +186,12 @@ model Lease {
 model Conversation {
   id        String   @id @default(uuid())
   userId    String
+  propertyId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property       Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   messages       Message[]
   softFixAttempt SoftFixAttempt[]
 

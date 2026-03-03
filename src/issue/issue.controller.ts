@@ -15,12 +15,12 @@ import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueStatusDto } from './dto/update-status.dto';
 
 @Controller('issue')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
   @Post('create')
-  @Roles(Role.TENANT)
+  // @Roles(Role.TENANT)
   async create(@Body() dto: CreateIssueDto) {
     return this.issueService.createIssue(dto);
   }
