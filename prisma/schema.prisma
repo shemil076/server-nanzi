@@ -145,7 +145,7 @@ model Installment {
 model Issue {
   id          String        @id @default(uuid())
   title       String
-  description String
+  description String        @db.Text
   status      IssueStatus   @default(OPEN)
   propertyId  String
   priority    IssuePriority @default(MEDIUM)
@@ -156,8 +156,8 @@ model Issue {
 
   ai_category    Ai_MaintenanceCategory?
   ai_urgency     Ai_MaintenanceUrgencyLevel?
-  ai_description String?
-  ai_suggestions String?
+  ai_description String?     @db.Text
+  ai_suggestions String?     @db.Text
   ai_confidence  Float?
   ai_processedAt DateTime?
 }

@@ -35,7 +35,7 @@ export class IssueService {
       // const aiClassifications = await this.aiService.classifyMaintenanceTicket(
       //   createIssueDto.description,
       // );
-
+      
 
       const newIssue = await this.prisma.issue.create({
         data: {
