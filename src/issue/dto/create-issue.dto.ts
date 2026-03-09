@@ -1,6 +1,6 @@
 import { Ai_MaintenanceCategory, Ai_MaintenanceUrgencyLevel, IssuePriority } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateIssueDto {
   @IsString()
