@@ -29,8 +29,9 @@ model User {
 
   TenantInvitation TenantInvitation[]
 
-  landlordLeases Lease[] @relation("LandlordLeases")
-  tenantLeases   Lease[] @relation("TenantLeases")
+  landlordLeases Lease[]        @relation("LandlordLeases")
+  tenantLeases   Lease[]        @relation("TenantLeases")
+  conversations  Conversation[]
 }
 
 model RefreshToken {
@@ -72,6 +73,7 @@ model Property {
   TenantInvitation TenantInvitation[]
 
   Lease Lease[]
+  conversations  Conversation[]
 }
 
 model PropertyImage {
@@ -143,7 +145,7 @@ model Installment {
 model Issue {
   id          String        @id @default(uuid())
   title       String
-  description String
+  description String        @db.Text
   status      IssueStatus   @default(OPEN)
   propertyId  String
   priority    IssuePriority @default(MEDIUM)
@@ -154,8 +156,8 @@ model Issue {
 
   ai_category    Ai_MaintenanceCategory?
   ai_urgency     Ai_MaintenanceUrgencyLevel?
-  ai_description String?
-  ai_suggestions String?
+  ai_description String?     @db.Text
+  ai_suggestions String?     @db.Text
   ai_confidence  Float?
   ai_processedAt DateTime?
 }
@@ -179,6 +181,64 @@ model Lease {
   landLord User     @relation("LandlordLeases", fields: [landLordId], references: [id], onDelete: Cascade)
 
   payments Payment[]
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  userId    String
+  propertyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property       Property         @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  messages       Message[]
+  softFixAttempt SoftFixAttempt[]
+
+  @@index([userId])
+}
+
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String
+  role           MessageRole
+  type           MessageType
+  metadata       Json?
+  content        String?     @db.Text
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+model SoftFixAttempt {
+  id             String          @id @default(uuid())
+  conversationId String
+  outcome        SoftFixOutcome?
+
+  attemptNumber Int
+  createdAt     DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+enum SoftFixOutcome {
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+enum MessageType {
+  TEXT
+  SOFT_FIX
+  CHIP_RESPONSE
+  SYSTEM
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
 }
 
 enum PaymentCycle {

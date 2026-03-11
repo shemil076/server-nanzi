@@ -32,20 +32,21 @@ export class IssueService {
 
   async createIssue(createIssueDto: CreateIssueDto) {
     try {
-      const aiClassifications = await this.aiService.classifyMaintenanceTicket(
-        createIssueDto.description,
-      );
+      // const aiClassifications = await this.aiService.classifyMaintenanceTicket(
+      //   createIssueDto.description,
+      // );
+      
 
       const newIssue = await this.prisma.issue.create({
         data: {
           ...createIssueDto,
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          ai_category: aiClassifications.category,
-          ai_confidence: aiClassifications.confidence,
-          ai_description: aiClassifications.description,
-          ai_suggestions: aiClassifications.suggestions,
+          // ai_category: aiClassifications.category,
+          // ai_confidence: aiClassifications.confidence,
+          // ai_description: aiClassifications.description,
+          // ai_suggestions: aiClassifications.suggestions,
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          ai_urgency: aiClassifications.urgency,
+          // ai_urgency: aiClassifications.urgency,
           ai_processedAt: new Date(),
         },
       });
