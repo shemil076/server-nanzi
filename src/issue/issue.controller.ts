@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -35,4 +36,11 @@ export class IssueController {
   async updateStatus(@Body() dto: UpdateIssueStatusDto) {
     return this.issueService.updateStatus(dto);
   }
+
+  @Delete(':id')
+  @Roles(Role.LANDLORD, Role.TENANT)
+  async deleteTicket(@Param('id') id: string) {
+    return this.issueService.deleteTicket(id)
+  }
+  
 }
