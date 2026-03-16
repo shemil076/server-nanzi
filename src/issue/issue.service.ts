@@ -77,4 +77,20 @@ export class IssueService {
       );
     }
   }
+
+  async deleteTicket(ticketId: string) {
+    try{
+      const deletedTicket = await this.prisma.issue.delete({
+        where: {
+          id: ticketId
+        }
+      });
+
+      return deletedTicket;
+    }catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to delete the ticket' + error,
+      );
+    }
+  }
 }
