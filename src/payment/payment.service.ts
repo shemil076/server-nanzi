@@ -244,20 +244,22 @@ export class PaymentService {
 
         const nextDueDate = addMonths(lastPaymentDate, 1);
 
-        // console.log(
-        //   `nextDueDate before condition => ${nextDueDate.toDateString()}`,
-        // );
 
-        if (nextDueDate <= lease.endDate && new Date() >= nextDueDate) {
+        if (payments[0].status ==="PENDING"){
+          return;
+        }        
+
+
+        if (nextDueDate <= lease.endDate) {
           console.log(`nextDueDate => ${nextDueDate.toDateString()}`);
 
-          await this.prisma.payment.create({
+            await this.prisma.payment.create({
             data: {
               leaseId: lease.id,
               amount: lease.rentAmount,
               dueDate: nextDueDate,
             },
-          });
+          });  
 
           // console.log(
           //   `Payment generated for lease ${lease.id} on ${nextDueDate.toLocaleDateString()}`,

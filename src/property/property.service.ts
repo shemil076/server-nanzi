@@ -232,6 +232,8 @@ export class PropertyService {
         mediumPriorityIssues,
         lowPriorityIssues,
       };
+
+      console.log("propertyOverview =>>", propertyOverview)
       return propertyOverview;
     } catch (err) {
       throw new InternalServerErrorException(
